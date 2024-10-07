@@ -117,9 +117,24 @@ if response.status_code == 200:
 
     # Ajustar el diseño del gráfico
     plt.tight_layout()
+    
+    
+    # Definir la ruta donde se guardará la imagen
+    image_path = 'world_data/static/employment_graph.png'
 
+    # Crear la carpeta static si no existe
+    if not os.path.exists('world_data/static'):
+        os.makedirs('world_data/static')
+
+    # Guardar el gráfico como imagen en PNG, reemplazando si ya existe
+    plt.savefig(image_path, format='png', dpi=300, bbox_inches='tight')
+
+    # Mostrar un mensaje de confirmación
+    print(f"El gráfico se ha guardado en {image_path}")
+    
+    
     # Mostrar el gráfico
-    plt.show()
+    '''plt.show()'''
 
 else:
     print("Error al descargar el archivo.")
