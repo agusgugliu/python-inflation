@@ -120,11 +120,11 @@ if response.status_code == 200:
     
     
     # Definir la ruta donde se guardará la imagen
-    image_path = 'world_data/static/employment_graph.png'
+    image_path = 'images/employment_graph.png'
 
     # Crear la carpeta static si no existe
-    if not os.path.exists('world_data/static'):
-        os.makedirs('world_data/static')
+    if not os.path.exists('images'):
+        os.makedirs('images')
 
     # Guardar el gráfico como imagen en PNG, reemplazando si ya existe
     plt.savefig(image_path, format='png', dpi=300, bbox_inches='tight')

@@ -136,11 +136,11 @@ if not df_filtered.empty:
 
 
     # Definir la ruta donde se guardará la imagen
-    image_path = 'world_data/static/inflation_graph.png'
+    image_path = 'images/inflation_graph.png'
 
     # Crear la carpeta static si no existe
-    if not os.path.exists('world_data/static'):
-        os.makedirs('world_data/static')
+    if not os.path.exists('images'):
+        os.makedirs('images')
 
     # Guardar el gráfico como imagen en PNG, reemplazando si ya existe
     plt.savefig(image_path, format='png', dpi=300, bbox_inches='tight')
@@ -151,6 +151,6 @@ if not df_filtered.empty:
 
     # Mostrar el gráfico
     '''plt.show()'''
-    
+
 else:
     print("No se encontraron datos para los filtros aplicados.")
