@@ -6,10 +6,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sqlite3
 import shutil
+import argparse
+
+# Configurar argparse para manejar el argumento de línea de comandos
+parser = argparse.ArgumentParser(description='Script to analyze employment data and highlight a specific country.')
+parser.add_argument('highlight_country', type=str, help='Country to highlight in the graph')
+args = parser.parse_args()
 
 # Selección de país a analizar
-highlight_country = input('Ingrese país a resaltar:\t')
-highlight_country = str(highlight_country)
+highlight_country = args.highlight_country
 
 # Puedes usar cualquier estilo disponible en tu instalación de Matplotlib
 plt.style.use('ggplot')  # O elimina esta línea si prefieres el estilo por defecto

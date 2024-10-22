@@ -2,7 +2,7 @@ import subprocess
 from datetime import datetime
 
 # Function to execute a script with given parameters and a timeout
-def execute_script(script_name, params, timeout=300):
+def execute_script(script_name, params, timeout=1200):  # Increased timeout to 1200 seconds (20 minutes)
     command = ['python3', script_name] + params
     try:
         result = subprocess.run(command, capture_output=True, text=True, timeout=timeout)
@@ -23,11 +23,12 @@ current_month = datetime.now().month
 last_year = current_year - 1
 periodo_desde = f"{last_year}01"
 periodo_hasta = f"{current_year}{current_month:02d}"
-num_periodos_proyeccion = '12'  # Example value, adjust as needed
+num_periodos_proyeccion = '2'  # Example value, adjust as needed
 inflation_params = [periodo_desde, periodo_hasta, num_periodos_proyeccion]
 
-
-
-execute_script('INDEC_employment.py', employment_params, timeout=600)  # Increased timeout to 600 seconds
-execute_script('INDEC_inflation.py', inflation_params, timeout=600)
-execute_script('BCRA_dolar.py', [], timeout=600)
+# Execute INDEC_employment.py with an increased timeout
+execute_script('INDEC_employment.py', employment_params, timeout=1200)
+# Execute INDEC_inflation.py with an increased timeout
+execute_script('INDEC_inflation.py', inflation_params, timeout=1200)
+# Execute BCRA_dolar.py with an increased timeout
+execute_script('BCRA_exchangerate.py', [], timeout=1200)

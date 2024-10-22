@@ -6,6 +6,19 @@ import numpy as np
 import sqlite3
 from io import StringIO
 import shutil
+import argparse
+
+# Configurar argparse para manejar los argumentos de línea de comandos
+parser = argparse.ArgumentParser(description='Script to analyze inflation data and project future periods.')
+parser.add_argument('periodo_desde', type=str, help='Start period in the format YYYYMM')
+parser.add_argument('periodo_hasta', type=str, help='End period in the format YYYYMM')
+parser.add_argument('num_periodos_proyeccion', type=int, help='Number of periods to project forward')
+args = parser.parse_args()
+
+# Asignar los argumentos a variables
+periodo_desde = args.periodo_desde
+periodo_hasta = args.periodo_hasta
+num_periodos_proyeccion = args.num_periodos_proyeccion
 
 # URL del archivo CSV
 url = 'https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_divisiones.csv'
@@ -32,13 +45,6 @@ conn.commit()
 folder_path = 'DATA_ipc'
 if os.path.exists(folder_path):
     shutil.rmtree(folder_path)
-
-# Solicitar al usuario ingresar el rango de periodos como texto
-periodo_desde = input("Ingrese el periodo DESDE (formato YYYYMM): ")
-periodo_hasta = input("Ingrese el periodo HASTA (formato YYYYMM): ")
-
-# Solicitar al usuario cuántos períodos proyectar
-num_periodos_proyeccion = int(input("¿Cuántos períodos desea proyectar hacia adelante? "))
 
 # Consultar los datos desde la base de datos
 query = f"""
