@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import sqlite3
 import shutil
+import matplotlib.pyplot as plt
 
 # Crear la subcarpeta "DATA_dolar" si no existe
 folder_path = 'DATA_dolar'
@@ -61,3 +62,23 @@ print("Datos insertados con éxito en la tabla FT_BCRA_dolar")
 if os.path.exists(folder_path):
     shutil.rmtree(folder_path)
     print(f"Carpeta {folder_path} eliminada con éxito")
+
+# Graficar la evolución diaria del tipo de cambio del dólar
+plt.figure(figsize=(12, 8))
+plt.plot(df['ID_tie_date'], df['F_bcra_dolar'], marker='x', markersize=1, linestyle='-', color='lightblue', linewidth=1.5, label='Tipo de Cambio del Dólar')
+plt.xlabel('Fecha', fontsize=12)
+plt.ylabel('Tipo de Cambio del Dólar', fontsize=12)
+plt.title('Evolución Diaria del Tipo de Cambio del Dólar', fontsize=16, fontweight='bold')
+plt.legend(fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.6)
+
+# Crear la carpeta images si no existe
+image_folder = 'images'
+if not os.path.exists(image_folder):
+    os.makedirs(image_folder)
+
+# Guardar el gráfico como imagen en PNG
+image_path = os.path.join(image_folder, 'BCRA_dollar.png')
+plt.savefig(image_path, format='png', dpi=300, bbox_inches='tight')
+
+print(f"El gráfico se ha guardado en {image_path}")

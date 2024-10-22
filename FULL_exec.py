@@ -23,7 +23,7 @@ current_month = datetime.now().month
 last_year = current_year - 1
 periodo_desde = f"{last_year}01"
 periodo_hasta = f"{current_year}{current_month:02d}"
-num_periodos_proyeccion = '2'  # Example value, adjust as needed
+num_periodos_proyeccion = '0'  # Example value, adjust as needed
 inflation_params = [periodo_desde, periodo_hasta, num_periodos_proyeccion]
 
 # Execute INDEC_employment.py with an increased timeout
