@@ -26,9 +26,8 @@ periodo_hasta = f"{current_year}{current_month:02d}"
 num_periodos_proyeccion = '12'  # Example value, adjust as needed
 inflation_params = [periodo_desde, periodo_hasta, num_periodos_proyeccion]
 
-# Execute INDEC_employment.py
-execute_script('INDEC_employment.py', employment_params)
-# Execute INDEC_inflation.py
-execute_script('INDEC_inflation.py', inflation_params)
-# Execute BCRA_dolar.py
-execute_script('BCRA_dolar.py', [])
+
+
+execute_script('INDEC_employment.py', employment_params, timeout=600)  # Increased timeout to 600 seconds
+execute_script('INDEC_inflation.py', inflation_params, timeout=600)
+execute_script('BCRA_dolar.py', [], timeout=600)
