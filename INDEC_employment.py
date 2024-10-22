@@ -4,10 +4,17 @@ import io
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import sqlite3
+import shutil
+import argparse
 
-#Selección de país a analizar
-highlight_country = input('Ingrese país a resaltar:\t')
-highlight_country = str(highlight_country)
+# Configurar argparse para manejar el argumento de línea de comandos
+parser = argparse.ArgumentParser(description='Script to analyze employment data and highlight a specific country.')
+parser.add_argument('highlight_country', type=str, help='Country to highlight in the graph')
+args = parser.parse_args()
+
+# Selección de país a analizar
+highlight_country = args.highlight_country
 
 # Puedes usar cualquier estilo disponible en tu instalación de Matplotlib
 plt.style.use('ggplot')  # O elimina esta línea si prefieres el estilo por defecto
@@ -51,6 +58,43 @@ if response.status_code == 200:
 
     # Cargar el archivo CSV en un DataFrame
     df = pd.read_csv(os.path.join(temp_dir, csv_file), skiprows=4)
+
+    # Conectar a la base de datos SQLite
+    db_path = os.path.join('databases', 'social_indicators.db')
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Crear la tabla FT_world_employment si no existe
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS FT_world_employment (
+        Country_Name TEXT,
+        Country_Code TEXT,
+        Indicator_Name TEXT,
+        Indicator_Code TEXT,
+        Year INTEGER,
+        Value REAL
+    )
+    ''')
+
+    # Insertar los datos del DataFrame en la tabla FT_world_employment
+    for index, row in df.iterrows():
+        for year in range(1960, 2022):
+            if not pd.isna(row[str(year)]):
+                cursor.execute('''
+                INSERT INTO FT_world_employment (Country_Name, Country_Code, Indicator_Name, Indicator_Code, Year, Value)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ''', (row['Country Name'], row['Country Code'], row['Indicator Name'], row['Indicator Code'], year, row[str(year)]))
+
+    # Confirmar la inserción
+    conn.commit()
+
+    # Cerrar la conexión a la base de datos
+    conn.close()
+
+    # Eliminar la carpeta DATA_empleo y su contenido si existe
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+        print(f"Carpeta {temp_dir} eliminada con éxito")
 
     # Limpiar las columnas, eliminando las innecesarias y las que no contienen valores numéricos
     df_years = df.iloc[:, 4:-1]
@@ -118,7 +162,6 @@ if response.status_code == 200:
     # Ajustar el diseño del gráfico
     plt.tight_layout()
     
-    
     # Definir la ruta donde se guardará la imagen
     image_path = 'images/employment_graph.png'
 
@@ -131,7 +174,6 @@ if response.status_code == 200:
 
     # Mostrar un mensaje de confirmación
     print(f"El gráfico se ha guardado en {image_path}")
-    
     
     # Mostrar el gráfico
     '''plt.show()'''

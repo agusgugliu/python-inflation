@@ -3,14 +3,22 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import sqlite3
+from io import StringIO
+import shutil
+import argparse
 
-# Crear la subcarpeta "DATA_ipc" si no existe
-folder_path = 'DATA_ipc'
-if not os.path.exists(folder_path):
-    os.makedirs(folder_path)
+# Configurar argparse para manejar los argumentos de línea de comandos
+parser = argparse.ArgumentParser(description='Script to analyze inflation data and project future periods.')
+parser.add_argument('periodo_desde', type=str, help='Start period in the format YYYYMM')
+parser.add_argument('periodo_hasta', type=str, help='End period in the format YYYYMM')
+parser.add_argument('num_periodos_proyeccion', type=int, help='Number of periods to project forward')
+args = parser.parse_args()
 
-# Definir la ruta completa del archivo dentro de la subcarpeta
-file_path = os.path.join(folder_path, 'DATA_indec_ipc.csv')
+# Asignar los argumentos a variables
+periodo_desde = args.periodo_desde
+periodo_hasta = args.periodo_hasta
+num_periodos_proyeccion = args.num_periodos_proyeccion
 
 # URL del archivo CSV
 url = 'https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_divisiones.csv'
@@ -19,30 +27,41 @@ url = 'https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_divisiones.csv'
 response = requests.get(url)
 csv_content = response.content.decode('latin1')
 
-# Guardar el contenido del CSV en el archivo dentro de la subcarpeta
-with open(file_path, 'w', encoding='latin1') as file:
-    file.write(csv_content)
+# Leer el contenido del CSV directamente en un DataFrame
+df = pd.read_csv(StringIO(csv_content), encoding='latin1', delimiter=';')
 
-# Leer el archivo CSV con el delimitador correcto
-df = pd.read_csv(file_path, encoding='latin1', delimiter=';')
+# Conectar a la base de datos SQLite en la carpeta databases
+db_path = os.path.join('databases', 'social_indicators.db')
+conn = sqlite3.connect(db_path)
+cursor = conn.cursor()
 
-# Solicitar al usuario ingresar el rango de periodos como texto
-periodo_desde = input("Ingrese el periodo DESDE (formato YYYYMM): ")
-periodo_hasta = input("Ingrese el periodo HASTA (formato YYYYMM): ")
+# Insertar los datos del DataFrame en la tabla FT_indec_ipc
+df.to_sql('FT_indec_ipc', conn, if_exists='append', index=False)
 
-# Solicitar al usuario cuántos períodos proyectar
-num_periodos_proyeccion = int(input("¿Cuántos períodos desea proyectar hacia adelante? "))
+# Confirmar la inserción
+conn.commit()
+
+# Eliminar la carpeta DATA_ipc y su contenido si existe
+folder_path = 'DATA_ipc'
+if os.path.exists(folder_path):
+    shutil.rmtree(folder_path)
+
+# Consultar los datos desde la base de datos
+query = f"""
+SELECT Periodo, Descripcion, Region, v_m_IPC
+FROM FT_indec_ipc
+WHERE Descripcion = 'NIVEL GENERAL'
+AND Region = 'Nacional'
+AND Periodo >= '{periodo_desde}'
+AND Periodo <= '{periodo_hasta}'
+"""
+df_filtered = pd.read_sql_query(query, conn)
+
+# Cerrar la conexión a la base de datos
+conn.close()
 
 # Asegurarse de que la columna "Periodo" esté en formato de texto
-df['Periodo'] = df['Periodo'].astype(str)
-
-# Filtrar los datos según los criterios: Descripcion = "NIVEL GENERAL", Region = "Nacional" y en el rango de periodos
-df_filtered = df[
-    (df['Descripcion'] == 'NIVEL GENERAL') & 
-    (df['Region'] == 'Nacional') & 
-    (df['Periodo'] >= periodo_desde) & 
-    (df['Periodo'] <= periodo_hasta)
-]
+df_filtered['Periodo'] = df_filtered['Periodo'].astype(str)
 
 # Ordenar el DataFrame por "Periodo"
 df_filtered = df_filtered.sort_values(by='Periodo')
@@ -134,7 +153,6 @@ if not df_filtered.empty:
     # Añadir leyenda
     plt.legend()
 
-
     # Definir la ruta donde se guardará la imagen
     image_path = 'images/inflation_graph.png'
 
@@ -147,7 +165,6 @@ if not df_filtered.empty:
 
     # Mostrar un mensaje de confirmación
     print(f"El gráfico se ha guardado en {image_path}")
-
 
     # Mostrar el gráfico
     '''plt.show()'''
