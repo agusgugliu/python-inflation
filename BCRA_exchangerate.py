@@ -2,6 +2,7 @@ import requests
 import os
 import pandas as pd
 import sqlite3
+import shutil
 
 # Crear la subcarpeta "DATA_dolar" si no existe
 folder_path = 'DATA_dolar'
@@ -55,3 +56,8 @@ conn.commit()
 conn.close()
 
 print("Datos insertados con éxito en la tabla FT_BCRA_dolar")
+
+# Eliminar la carpeta DATA_dolar y su contenido si existe
+if os.path.exists(folder_path):
+    shutil.rmtree(folder_path)
+    print(f"Carpeta {folder_path} eliminada con éxito")
