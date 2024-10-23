@@ -79,8 +79,8 @@ if os.path.exists(folder_path):
     print(f"Carpeta {folder_path} eliminada con éxito")
 
 # Graficar la evolución diaria del tipo de cambio del dólar
-plt.figure(figsize=(12, 8))
-plt.plot(df_filtered['ID_tie_date'], df_filtered['F_bcra_dolar'], marker='x', markersize=3, linestyle='-', color='lightblue', linewidth=1.5, label='Tipo de Cambio del Dólar')
+plt.figure(figsize=(10, 6))
+plt.plot(df_filtered['ID_tie_date'], df_filtered['F_bcra_dolar'], marker='x', markersize=3, linestyle='-', color='lightblue', linewidth=1, label='Tipo de Cambio del Dólar')
 
 # Añadir línea vertical para el inicio del año actual
 current_year_start = pd.to_datetime(f"{datetime.now().year}-01-01").date()
@@ -102,7 +102,7 @@ plt.text(last_date, last_value, f'Last: {last_value:.2f}', fontsize=10, vertical
 
 plt.xlabel('Fecha', fontsize=12)
 plt.ylabel('Tipo de Cambio del Dólar', fontsize=12)
-plt.title('Evolución Diaria del Tipo de Cambio del Dólar', fontsize=16, fontweight='bold')
+plt.title('Evolución Diaria del Tipo de Cambio del Dólar', fontsize=14, fontweight='bold')
 plt.legend(fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.6)
 
