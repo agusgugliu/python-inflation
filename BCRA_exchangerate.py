@@ -5,17 +5,10 @@ import sqlite3
 import shutil
 import matplotlib.pyplot as plt
 from datetime import datetime
-import argparse
 
-# Configurar argparse para manejar los argumentos de línea de comandos
-parser = argparse.ArgumentParser(description='Script to analyze the daily evolution of the Dollar exchange rate.')
-parser.add_argument('date_from', type=str, help='Start date in the format YYYY-MM-DD')
-parser.add_argument('date_until', type=str, help='End date in the format YYYY-MM-DD')
-args = parser.parse_args()
-
-# Asignar los argumentos a variables
-date_from = args.date_from
-date_until = args.date_until
+# Solicitar las fechas de inicio y fin al usuario
+date_from = input('Ingrese la fecha de inicio (YYYY-MM-DD): ')
+date_until = input('Ingrese la fecha de fin (YYYY-MM-DD): ')
 
 # Crear la subcarpeta "DATA_dolar" si no existe
 folder_path = 'DATA_dolar'
@@ -44,9 +37,6 @@ df = pd.read_excel(file_path, usecols="C:D", names=["ID_tie_date", "F_bcra_dolar
 df['ID_tie_date'] = pd.to_datetime(df['ID_tie_date'], errors='coerce').dt.date
 df['F_bcra_dolar'] = pd.to_numeric(df['F_bcra_dolar'], errors='coerce')
 
-# Filtrar el DataFrame según el rango de fechas proporcionado
-df_filtered = df[(df['ID_tie_date'] >= pd.to_datetime(date_from).date()) & (df['ID_tie_date'] <= pd.to_datetime(date_until).date())]
-
 # Conectar a la base de datos SQLite
 conn = sqlite3.connect('databases/social_indicators.db')
 cursor = conn.cursor()
@@ -63,8 +53,8 @@ CREATE TABLE IF NOT EXISTS FT_BCRA_dolar (
 # Truncar la tabla FT_BCRA_dolar antes de insertar nuevos datos
 cursor.execute('DELETE FROM FT_BCRA_dolar')
 
-# Insertar los datos filtrados en la tabla FT_BCRA_dolar
-for row in df_filtered.itertuples(index=False):
+# Insertar los datos en la tabla FT_BCRA_dolar
+for row in df.itertuples(index=False):
     cursor.execute('INSERT INTO FT_BCRA_dolar (ID_tie_date, F_bcra_dolar) VALUES (?, ?)', (row.ID_tie_date, row.F_bcra_dolar))
 
 # Confirmar los cambios y cerrar la conexión
@@ -80,24 +70,24 @@ if os.path.exists(folder_path):
 
 # Graficar la evolución diaria del tipo de cambio del dólar
 plt.figure(figsize=(10, 6))
-plt.plot(df_filtered['ID_tie_date'], df_filtered['F_bcra_dolar'], marker='x', markersize=3, linestyle='-', color='lightblue', linewidth=1, label='Tipo de Cambio del Dólar')
+plt.plot(df['ID_tie_date'], df['F_bcra_dolar'], marker='x', markersize=3, linestyle='-', color='lightblue', linewidth=1, label='Tipo de Cambio del Dólar')
 
 # Añadir línea vertical para el inicio del año actual
 current_year_start = pd.to_datetime(f"{datetime.now().year}-01-01").date()
 plt.axvline(x=current_year_start, color='red', linestyle='--', linewidth=1, label='Inicio del Año Actual')
 
 # Añadir anotaciones para el valor máximo, mínimo y último valor
-max_value = df_filtered['F_bcra_dolar'].max()
-min_value = df_filtered['F_bcra_dolar'].min()
-last_value = df_filtered['F_bcra_dolar'].iloc[-1]
-last_date = df_filtered['ID_tie_date'].iloc[-1]
+max_value = df['F_bcra_dolar'].max()
+min_value = df['F_bcra_dolar'].min()
+last_value = df['F_bcra_dolar'].iloc[-1]
+last_date = df['ID_tie_date'].iloc[-1]
 
-plt.scatter(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == max_value], max_value, color='green', zorder=5)
-plt.scatter(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == min_value], min_value, color='red', zorder=5)
+plt.scatter(df['ID_tie_date'][df['F_bcra_dolar'] == max_value], max_value, color='green', zorder=5)
+plt.scatter(df['ID_tie_date'][df['F_bcra_dolar'] == min_value], min_value, color='red', zorder=5)
 plt.scatter(last_date, last_value, color='blue', zorder=5)
 
-plt.text(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == max_value].values[0], max_value, f'Max: {max_value:.2f}', fontsize=10, verticalalignment='bottom', color='green')
-plt.text(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == min_value].values[0], min_value, f'Min: {min_value:.2f}', fontsize=10, verticalalignment='top', color='red')
+plt.text(df['ID_tie_date'][df['F_bcra_dolar'] == max_value].values[0], max_value, f'Max: {max_value:.2f}', fontsize=10, verticalalignment='bottom', color='green')
+plt.text(df['ID_tie_date'][df['F_bcra_dolar'] == min_value].values[0], min_value, f'Min: {min_value:.2f}', fontsize=10, verticalalignment='top', color='red')
 plt.text(last_date, last_value, f'Last: {last_value:.2f}', fontsize=10, verticalalignment='bottom', color='blue')
 
 plt.xlabel('Fecha', fontsize=12)
