@@ -118,7 +118,7 @@ if not df_filtered.empty:
     plt.fill_between(df_filtered['Periodo'], df_filtered['v_m_IPC'], color='#aec7e8', alpha=0.3)
 
     # Título con más detalle y fuente más grande
-    plt.title(f'Variación Mensual del IPC - NIVEL GENERAL (Región: Nacional)\nPeríodo: {periodo_desde} a {periodo_hasta}', fontsize=14, fontweight='bold')
+    plt.title(f'Variación Mensual del IPC', fontsize=14, fontweight='bold')
 
     # Etiquetas de los ejes
     plt.xlabel('Periodo', fontsize=12)

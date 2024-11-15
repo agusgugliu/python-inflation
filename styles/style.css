@@ -3,15 +3,23 @@ body {
     text-align: center;
 }
 
+h1 {
+    color: slategray;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
 .image-container {
     position: relative;
     display: inline-block;
 }
 
 #kpiImage {
-    width: 80%;
-    max-width: 800px;
+    width: 90%;
+    max-width: 1200px;
     height: auto;
+    border: solid 1px slategray;
+    border-radius: 15px;
+    padding: 5%;
 }
 
 .nav-btn {

@@ -70,11 +70,11 @@ if os.path.exists(folder_path):
 
 # Graficar la evolución diaria del tipo de cambio del dólar
 plt.figure(figsize=(10, 6))
-plt.plot(df['ID_tie_date'], df['F_bcra_dolar'], marker='x', markersize=3, linestyle='-', color='lightblue', linewidth=1, label='Tipo de Cambio del Dólar')
+plt.plot(df['ID_tie_date'], df['F_bcra_dolar'], marker='x', markersize=0.05, linestyle='-', color='slategray', linewidth=0.5, label='Tipo de Cambio del Dólar')
 
 # Añadir línea vertical para el inicio del año actual
 current_year_start = pd.to_datetime(f"{datetime.now().year}-01-01").date()
-plt.axvline(x=current_year_start, color='red', linestyle='--', linewidth=1, label='Inicio del Año Actual')
+plt.axvline(x=current_year_start, color='lightblue', linestyle='--', linewidth=0.25, label='Inicio del Año Actual')
 
 # Añadir anotaciones para el valor máximo, mínimo y último valor
 max_value = df['F_bcra_dolar'].max()
@@ -86,7 +86,7 @@ plt.scatter(df['ID_tie_date'][df['F_bcra_dolar'] == max_value], max_value, color
 plt.scatter(df['ID_tie_date'][df['F_bcra_dolar'] == min_value], min_value, color='red', zorder=5)
 plt.scatter(last_date, last_value, color='blue', zorder=5)
 
-plt.text(df['ID_tie_date'][df['F_bcra_dolar'] == max_value].values[0], max_value, f'Max: {max_value:.2f}', fontsize=10, verticalalignment='bottom', color='green')
+plt.text(df['ID_tie_date'][df['F_bcra_dolar'] == max_value].values[0], max_value, f'Max: {max_value:.2f}', fontsize=10, verticalalignment='top', color='green')
 plt.text(df['ID_tie_date'][df['F_bcra_dolar'] == min_value].values[0], min_value, f'Min: {min_value:.2f}', fontsize=10, verticalalignment='top', color='red')
 plt.text(last_date, last_value, f'Last: {last_value:.2f}', fontsize=10, verticalalignment='bottom', color='blue')
 
