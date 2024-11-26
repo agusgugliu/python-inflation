@@ -87,7 +87,7 @@ last_date = df_filtered['ID_tie_date'].iloc[-1]
 
 plt.scatter(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == max_value], max_value, color='green', zorder=5)
 plt.scatter(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == min_value], min_value, color='red', zorder=5)
-plt.scatter(last_date, last_value, color='blue', zorder=5)
+plt.scatter(last_date, last_value, color='lightblue', zorder=5)
 
 plt.text(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == max_value].values[0], max_value, f'Max: {max_value:.2f}', fontsize=10, verticalalignment='top', color='green')
 plt.text(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == min_value].values[0], min_value, f'Min: {min_value:.2f}', fontsize=10, verticalalignment='top', color='red')
