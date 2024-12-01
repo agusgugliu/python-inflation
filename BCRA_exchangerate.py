@@ -5,10 +5,18 @@ import sqlite3
 import shutil
 import matplotlib.pyplot as plt
 from datetime import datetime
+import argparse
 
-# Solicitar las fechas de inicio y fin al usuario para el gráfico
-date_from = input('Ingrese la fecha de inicio para el gráfico (YYYY-MM-DD): ')
-date_until = input('Ingrese la fecha de fin para el gráfico (YYYY-MM-DD): ')
+# Configurar argparse para manejar los argumentos de línea de comandos
+parser = argparse.ArgumentParser(description='Script para procesar datos de tipo de cambio del dólar del BCRA.')
+parser.add_argument('date_from', type=str, help='Fecha de inicio para el gráfico (YYYY-MM-DD)')
+parser.add_argument('date_until', type=str, help='Fecha de fin para el gráfico (YYYY-MM-DD)')
+
+args = parser.parse_args()
+
+# Asignar los argumentos a variables
+date_from = args.date_from
+date_until = args.date_until
 
 # Crear la subcarpeta "DATA_dolar" si no existe
 folder_path = 'DATA_dolar'
@@ -87,7 +95,7 @@ last_date = df_filtered['ID_tie_date'].iloc[-1]
 
 plt.scatter(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == max_value], max_value, color='green', zorder=5)
 plt.scatter(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == min_value], min_value, color='red', zorder=5)
-plt.scatter(last_date, last_value, color='lightblue', zorder=5)
+plt.scatter(last_date, last_value, color='blue', zorder=5)
 
 plt.text(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == max_value].values[0], max_value, f'Max: {max_value:.2f}', fontsize=10, verticalalignment='top', color='green')
 plt.text(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == min_value].values[0], min_value, f'Min: {min_value:.2f}', fontsize=10, verticalalignment='top', color='red')

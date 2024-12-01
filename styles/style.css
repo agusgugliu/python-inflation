@@ -19,6 +19,7 @@ h1 {
     max-width: 1200px;
     height: auto;
     border: solid 1px slategray;
+    background-color: white;
     border-radius: 15px;
     padding: 5%;
 }
