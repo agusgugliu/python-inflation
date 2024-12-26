@@ -1,8 +1,10 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 import sqlite3
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 @app.route('/get_exchange_rate_data')
 def get_exchange_rate_data():
@@ -17,7 +19,7 @@ def get_exchange_rate_data():
     cursor.execute('''
         SELECT ID_tie_date, F_bcra_dolar
         FROM FT_BCRA_dolar
-        WHERE ID_tie_date >= ? AND F_bcra_dolar IS NOT NULL
+        WHERE ID_tie_date >= ?
         ORDER BY ID_tie_date DESC
         LIMIT 15
     ''', (date_15_days_ago_str,))

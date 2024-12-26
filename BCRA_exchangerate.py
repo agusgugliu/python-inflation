@@ -101,6 +101,11 @@ plt.text(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == max_value].va
 plt.text(df_filtered['ID_tie_date'][df_filtered['F_bcra_dolar'] == min_value].values[0], min_value, f'Min: {min_value:.2f}', fontsize=10, verticalalignment='top', color='red')
 plt.text(last_date, last_value, f'Last: {last_value:.2f}', fontsize=10, verticalalignment='bottom', color='blue')
 
+# Añadir anotaciones para cada punto si hay menos de 15 valores
+if len(df_filtered) < 15:
+    for i, row in df_filtered.iterrows():
+        plt.annotate(f'{row["F_bcra_dolar"]:.2f}', (row['ID_tie_date'], row['F_bcra_dolar']), textcoords="offset points", xytext=(0,10), ha='center')
+
 plt.xlabel('Fecha', fontsize=12)
 plt.ylabel('Tipo de Cambio del Dólar', fontsize=12)
 plt.title('Evolución Diaria del Tipo de Cambio del Dólar', fontsize=14, fontweight='bold')

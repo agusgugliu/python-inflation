@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchExchangeRateData() {
         try {
-            const response = await fetch('/get_exchange_rate_data');
+            const response = await fetch('http://127.0.0.1:5000/get_exchange_rate_data');
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
