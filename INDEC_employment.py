@@ -8,13 +8,17 @@ import sqlite3
 import shutil
 import argparse
 
-# Configurar argparse para manejar el argumento de línea de comandos
+# Configurar argparse para manejar los argumentos de línea de comandos
 parser = argparse.ArgumentParser(description='Script to analyze employment data and highlight a specific country.')
 parser.add_argument('highlight_country', type=str, help='Country to highlight in the graph')
+parser.add_argument('year_from', type=int, help='Start year for the graph (YYYY)')
+parser.add_argument('year_until', type=int, help='End year for the graph (YYYY)')
 args = parser.parse_args()
 
-# Selección de país a analizar
+# Selección de país a analizar y rango de años
 highlight_country = args.highlight_country
+year_from = args.year_from
+year_until = args.year_until
 
 # Puedes usar cualquier estilo disponible en tu instalación de Matplotlib
 plt.style.use('ggplot')  # O elimina esta línea si prefieres el estilo por defecto
@@ -106,43 +110,84 @@ if response.status_code == 200:
     df_clean = df_years_clean.T.dropna(how='all')
     df_clean.columns = df['Country Name']
 
+    # Filtrar los datos según el rango de años proporcionado
+    df_clean = df_clean.loc[str(year_from):str(year_until)]
+
+    # Asegurarse de que los índices sean enteros
+    df_clean.index = df_clean.index.astype(int)
+
     # Calcular el promedio global anual (promedio por año)
     global_average = df_clean.mean(axis=1)
+
+    # Identificar el país con el índice de desempleo más alto en el último período
+    last_year = df_clean.index[-1]
+    max_unemployment_country = df_clean.loc[last_year].idxmax()
+    max_unemployment_value = df_clean.loc[last_year].max()
+
+    # Identificar el país con el índice de desempleo más bajo en el último período
+    min_unemployment_country = df_clean.loc[last_year].idxmin()
+    min_unemployment_value = df_clean.loc[last_year].min()
 
     # Crear el gráfico de la evolución anual del desempleo para todos los países
     plt.figure(figsize=(14, 8))
 
     # Graficar todos los países con líneas grises y sutiles
     for country in df_clean.columns:
-        plt.plot(df_clean.index.astype(int), df_clean[country], color='lightgray', alpha=0.3, linewidth=0.5)
+        plt.plot(df_clean.index, df_clean[country], color='lightgray', alpha=0.3, linewidth=0.5)
 
     # Resaltar la línea de Resaltado con marcadores y línea más gruesa
     if highlight_country in df_clean.columns:
-        years = df_clean.index.astype(int)
+        years = df_clean.index
         unemployment_rate_arg = df_clean[highlight_country]
         plt.plot(years, unemployment_rate_arg, marker="x", color='#74acdf', label=highlight_country, linewidth=1.5, markersize=4)
 
         # Mostrar los valores para Resaltado sobre cada punto
         for i, year in enumerate(years):
-            plt.annotate(f'{unemployment_rate_arg[i]:.1f}', 
-                         (year, unemployment_rate_arg[i]), 
+            plt.annotate(f'{unemployment_rate_arg.iloc[i]:.1f}', 
+                         (year, unemployment_rate_arg.iloc[i]), 
                          textcoords="offset points", 
                          xytext=(0, 10),  # Desplazar el texto 10 puntos hacia arriba
                          ha='center', fontsize=9, color='#0e2246')
 
+    # Resaltar el país con el índice de desempleo más alto en el último período
+    if max_unemployment_country in df_clean.columns:
+        max_unemployment_rate = df_clean[max_unemployment_country]
+        plt.plot(df_clean.index, max_unemployment_rate, marker="o", color='red', label=f'Peor Desempleo: {max_unemployment_country}', linewidth=2, markersize=6)
+
+        # Mostrar los valores para el país con el peor desempleo sobre cada punto
+        for i, year in enumerate(years):
+            plt.annotate(f'{max_unemployment_rate.iloc[i]:.1f}', 
+                         (year, max_unemployment_rate.iloc[i]), 
+                         textcoords="offset points", 
+                         xytext=(0, 10),  # Desplazar el texto 10 puntos hacia arriba
+                         ha='center', fontsize=9, color='red')
+
+    # Resaltar el país con el índice de desempleo más bajo en el último período
+    if min_unemployment_country in df_clean.columns:
+        min_unemployment_rate = df_clean[min_unemployment_country]
+        plt.plot(df_clean.index, min_unemployment_rate, marker="o", color='green', label=f'Mejor Desempleo: {min_unemployment_country}', linewidth=2, markersize=6)
+
+        # Mostrar los valores para el país con el mejor desempleo sobre cada punto
+        for i, year in enumerate(years):
+            plt.annotate(f'{min_unemployment_rate.iloc[i]:.1f}', 
+                         (year, min_unemployment_rate.iloc[i]), 
+                         textcoords="offset points", 
+                         xytext=(0, 10),  # Desplazar el texto 10 puntos hacia arriba
+                         ha='center', fontsize=9, color='green')
+
     # Graficar el promedio global anual con una línea punteada
-    plt.plot(df_clean.index.astype(int), global_average, color='slategray', linestyle='--', label='Promedio Global', linewidth=1.2)
+    plt.plot(df_clean.index, global_average, color='slategray', linestyle='--', label='Promedio Global', linewidth=1.2)
 
     # Mostrar los valores para el promedio global sobre cada punto
-    for i, year in enumerate(years):
-        plt.annotate(f'{global_average[i]:.1f}', 
-                     (year, global_average[i]), 
+    for i, year in enumerate(global_average.index):
+        plt.annotate(f'{global_average.iloc[i]:.1f}', 
+                     (year, global_average.iloc[i]), 
                      textcoords="offset points", 
                      xytext=(0, -10),  # Desplazar el texto 10 puntos hacia abajo
                      ha='center', fontsize=9, color='slategray')
 
     # Personalizar el gráfico
-    plt.title(f'Evolución del Desempleo en Todos los Países (%) \n(Resaltado: {highlight_country} y Promedio Global)', fontsize=18, fontweight='bold')
+    plt.title(f'Evolución del Desempleo en Todos los Países (%) \n(Resaltado: {highlight_country}, Peor Desempleo: {max_unemployment_country}, Mejor Desempleo: {min_unemployment_country} y Promedio Global)', fontsize=18, fontweight='bold')
     plt.xlabel('Año', fontsize=14)
     plt.ylabel('Tasa de Desempleo (%)', fontsize=14)
     
@@ -150,7 +195,7 @@ if response.status_code == 200:
     plt.grid(True, which='both', linestyle=':', linewidth=0.3, alpha=0.7, color="#97c2dc")
 
     # Aumentar el tamaño de los ticks
-    plt.xticks(rotation=45, fontsize=12)
+    plt.xticks(rotation=90, fontsize=12)
     plt.yticks(fontsize=12)
 
     # Añadir sombra al gráfico

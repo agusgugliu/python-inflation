@@ -73,8 +73,11 @@ print("Datos insertados con éxito en la tabla FT_BCRA_dolar")
 
 # Eliminar la carpeta DATA_dolar y su contenido si existe
 if os.path.exists(folder_path):
-    shutil.rmtree(folder_path)
-    print(f"Carpeta {folder_path} eliminada con éxito")
+    try:
+        shutil.rmtree(folder_path)
+        print(f"Carpeta {folder_path} eliminada con éxito")
+    except PermissionError:
+        print(f"No se pudo eliminar la carpeta {folder_path} debido a un error de permisos")
 
 # Filtrar el DataFrame según el rango de fechas proporcionado para el gráfico
 df_filtered = df[(df['ID_tie_date'] >= pd.to_datetime(date_from).date()) & (df['ID_tie_date'] <= pd.to_datetime(date_until).date())]
@@ -111,6 +114,9 @@ plt.ylabel('Tipo de Cambio del Dólar', fontsize=12)
 plt.title('Evolución Diaria del Tipo de Cambio del Dólar', fontsize=14, fontweight='bold')
 plt.legend(fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.6)
+
+# Rotar las fechas en el eje x 90 grados
+plt.xticks(rotation=90)
 
 # Crear la carpeta images si no existe
 image_folder = 'images'
